@@ -1,303 +1,308 @@
 "use client";
 
-import { motion, useMotionValue, useTransform, animate } from "framer-motion";
-import { useEffect, useRef, useState } from "react";
+import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
+import { useRef } from "react";
 import { site } from "@/lib/content";
 
-/* Cursor-tracking split effect */
-function SplitHero() {
-  const [hovered, setHovered] = useState<"left" | "right" | null>(null);
+export default function Hero() {
   const containerRef = useRef<HTMLDivElement>(null);
-  const mouseX = useMotionValue(0.5); // 0–1 across container
+  /* raw mouse position (0–100%) */
+  const rawX = useMotionValue(50);
+  /* spring-damped version */
+  const splitX = useSpring(rawX, { stiffness: 110, damping: 22, mass: 0.9 });
+
+  /* Derive clip-path strings and left position from the same spring */
+  const leftClip = useTransform(
+    splitX,
+    (pct) => `inset(0 ${100 - pct}% 0 0)`
+  );
+  const rightClip = useTransform(
+    splitX,
+    (pct) => `inset(0 0 0 ${pct}%)`
+  );
+  const dividerLeft = useTransform(splitX, (pct) => `${pct}%`);
 
   const handleMouseMove = (e: React.MouseEvent) => {
     const rect = containerRef.current?.getBoundingClientRect();
     if (!rect) return;
-    mouseX.set((e.clientX - rect.left) / rect.width);
+    const pct = ((e.clientX - rect.left) / rect.width) * 100;
+    rawX.set(Math.max(18, Math.min(82, pct)));
   };
 
-  const handleMouseLeave = () => {
-    setHovered(null);
-    animate(mouseX, 0.5, { duration: 0.6, ease: [0.22, 1, 0.36, 1] });
-  };
-
-  const leftWidth = useTransform(
-    mouseX,
-    [0, 0.5, 1],
-    ["65%", "50%", "35%"]
-  );
-  const rightWidth = useTransform(
-    mouseX,
-    [0, 0.5, 1],
-    ["35%", "50%", "65%"]
-  );
+  const handleMouseLeave = () => rawX.set(50);
 
   return (
-    <div
+    <section
+      id="hero"
       ref={containerRef}
-      className="flex h-screen relative overflow-hidden cursor-none"
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
+      style={{
+        position: "relative",
+        height: "100svh",
+        minHeight: 600,
+        overflow: "hidden",
+        cursor: "none",
+      }}
     >
-      {/* LEFT — Strategist (dark) */}
+      {/* ── LEFT PANEL — Strategist (dark) ── */}
       <motion.div
-        style={{ width: leftWidth }}
-        className="relative flex flex-col justify-between p-8 md:p-14 select-none overflow-hidden"
-        onMouseEnter={() => setHovered("left")}
+        style={{
+          position: "absolute",
+          inset: 0,
+          clipPath: leftClip,
+          background: "var(--side-a)",
+          willChange: "clip-path",
+        }}
+        className="flex flex-col justify-between p-10 md:p-16 pointer-events-none"
       >
-        {/* Background */}
-        <div className="absolute inset-0" style={{ background: "var(--side-a)" }} />
-
-        {/* Decorative grid lines */}
-        <div className="absolute inset-0 opacity-5">
-          {[...Array(6)].map((_, i) => (
-            <div
-              key={i}
-              className="absolute top-0 bottom-0 w-px"
-              style={{ left: `${(i + 1) * 16.66}%`, background: "var(--cream)" }}
-            />
-          ))}
-        </div>
-
-        <div className="relative z-10">
-          {/* Nav brand */}
-          <motion.span
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.8 }}
-            className="text-sm tracking-widest uppercase"
-            style={{ color: "rgba(245,242,238,0.4)", fontFamily: "var(--font-body)" }}
-          >
-            SM
-          </motion.span>
-        </div>
-
-        {/* Center content */}
-        <div className="relative z-10 flex flex-col gap-4">
-          <motion.div
-            initial={{ opacity: 0, y: 40 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3, duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
-          >
-            <div
-              className="mb-3 text-xs tracking-widest uppercase"
-              style={{ color: "var(--gold)", fontFamily: "var(--font-body)" }}
-            >
-              Strategy &amp; Campaigns
-            </div>
-            <h2
-              className="font-light leading-none"
-              style={{
-                fontFamily: "var(--font-display)",
-                fontSize: "clamp(2.5rem, 5vw, 5rem)",
-                color: "var(--cream)",
-                letterSpacing: "-0.02em",
-              }}
-            >
-              Strategist
-            </h2>
-            <p
-              className="mt-4 text-sm leading-relaxed max-w-xs"
-              style={{ color: "rgba(245,242,238,0.5)", fontFamily: "var(--font-body)" }}
-            >
-              Data-driven campaigns, audience segmentation, and brand architecture that converts.
-            </p>
-          </motion.div>
-
-          <motion.div
-            initial={{ width: 0 }}
-            animate={{ width: hovered === "left" ? "3rem" : "1.5rem" }}
-            transition={{ duration: 0.4 }}
-            className="h-px"
-            style={{ background: "var(--gold)" }}
-          />
-        </div>
-
-        <div className="relative z-10" />
-      </motion.div>
-
-      {/* Divider line + cursor dot */}
-      <div className="absolute inset-y-0 z-30 flex items-center pointer-events-none"
-        style={{ left: "50%", transform: "translateX(-50%)" }}>
-        <motion.div
-          className="w-px bg-white opacity-20 h-full" />
-        <motion.div
-          className="absolute w-12 h-12 rounded-full flex items-center justify-center"
+        {/* Subtle column grid */}
+        <div
+          className="absolute inset-0 pointer-events-none"
           style={{
-            background: "var(--gold)",
-            left: "50%",
-            transform: "translateX(-50%)",
-            top: "50%",
-            marginTop: "-1.5rem",
-          }}
-          initial={{ scale: 0 }}
-          animate={{ scale: 1 }}
-          transition={{ delay: 1.2, type: "spring", stiffness: 200 }}
-        >
-          <svg width="14" height="14" viewBox="0 0 20 20" fill="white">
-            <path d="M8 4l-6 6 6 6M12 4l6 6-6 6" strokeWidth="0" />
-            <path d="M6.5 10h7M3 10l3.5-3.5M3 10l3.5 3.5M17 10l-3.5-3.5M17 10l-3.5 3.5" stroke="white" strokeWidth="1.5" strokeLinecap="round" fill="none" />
-          </svg>
-        </motion.div>
-      </div>
-
-      {/* RIGHT — Creator (light) */}
-      <motion.div
-        style={{ width: rightWidth }}
-        className="relative flex flex-col justify-between p-8 md:p-14 select-none overflow-hidden"
-        onMouseEnter={() => setHovered("right")}
-      >
-        <div className="absolute inset-0" style={{ background: "var(--cream)" }} />
-
-        {/* Subtle dot grid */}
-        <div className="absolute inset-0 opacity-30"
-          style={{
-            backgroundImage: "radial-gradient(circle, var(--cream-dark) 1px, transparent 1px)",
-            backgroundSize: "28px 28px",
+            backgroundImage: "linear-gradient(to right, rgba(255,255,255,0.03) 1px, transparent 1px)",
+            backgroundSize: "12.5% 100%",
           }}
         />
-
-        <div className="relative z-10 flex justify-end">
-          <motion.a
-            href={`mailto:${site.email}`}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.8 }}
-            className="text-sm tracking-widest uppercase transition-colors duration-200"
-            style={{ color: "var(--ink-light)", fontFamily: "var(--font-body)" }}
-            onMouseEnter={(e) => (e.currentTarget.style.color = "var(--gold)")}
-            onMouseLeave={(e) => (e.currentTarget.style.color = "var(--ink-light)")}
-          >
-            Hire Me
-          </motion.a>
-        </div>
-
-        {/* Center content */}
-        <div className="relative z-10 flex flex-col gap-4">
-          <motion.div
-            initial={{ opacity: 0, y: 40 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.5, duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
-          >
-            <div
-              className="mb-3 text-xs tracking-widest uppercase"
-              style={{ color: "var(--gold)", fontFamily: "var(--font-body)" }}
-            >
-              Brand &amp; Visual Story
-            </div>
-            <h2
-              className="font-light leading-none"
-              style={{
-                fontFamily: "var(--font-display)",
-                fontSize: "clamp(2.5rem, 5vw, 5rem)",
-                color: "var(--ink)",
-                letterSpacing: "-0.02em",
-                fontStyle: "italic",
-              }}
-            >
-              Creator.
-            </h2>
-            <p
-              className="mt-4 text-sm leading-relaxed max-w-xs"
-              style={{ color: "var(--ink-light)", fontFamily: "var(--font-body)" }}
-            >
-              Visual storytelling, content direction, and brand identity that connects on a human level.
-            </p>
-          </motion.div>
-
-          <motion.div
-            initial={{ width: 0 }}
-            animate={{ width: hovered === "right" ? "3rem" : "1.5rem" }}
-            transition={{ duration: 0.4 }}
-            className="h-px"
-            style={{ background: "var(--gold)" }}
-          />
-        </div>
-
-        <div className="relative z-10" />
-      </motion.div>
-
-      {/* Full-name overlay at bottom */}
-      <motion.div
-        className="absolute bottom-8 md:bottom-14 left-0 right-0 z-20 flex justify-center"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 1.0, duration: 0.8 }}
-      >
-        <div className="text-center">
-          <div
-            className="font-light"
+        <div className="relative z-10">
+          <span
             style={{
               fontFamily: "var(--font-display)",
-              fontSize: "clamp(1.5rem, 3vw, 2.5rem)",
-              letterSpacing: "0.15em",
-              color: "transparent",
-              background: "linear-gradient(90deg, var(--cream) 0%, var(--ink) 100%)",
-              WebkitBackgroundClip: "text",
-              backgroundClip: "text",
+              fontSize: "1.25rem",
+              color: "rgba(245,242,238,0.3)",
             }}
           >
-            SATHVIKA MANTHENA
-          </div>
-          <div className="flex justify-center gap-6 mt-3">
-            <a
-              href="#about"
-              className="text-xs tracking-widest uppercase transition-colors"
-              style={{ color: "rgba(245,242,238,0.5)", fontFamily: "var(--font-body)" }}
-              onMouseEnter={(e) => (e.currentTarget.style.color = "var(--gold)")}
-              onMouseLeave={(e) => (e.currentTarget.style.color = "rgba(245,242,238,0.5)")}
-            >
-              See My Work ↓
-            </a>
-          </div>
+            SM
+          </span>
         </div>
+        <div className="relative z-10">
+          <p
+            className="mb-4 text-xs tracking-widest uppercase"
+            style={{ color: "var(--gold)", fontFamily: "var(--font-body)" }}
+          >
+            Strategy &amp; Campaigns
+          </p>
+          <h2
+            style={{
+              fontFamily: "var(--font-display)",
+              fontSize: "clamp(3rem, 6vw, 6rem)",
+              color: "var(--cream)",
+              letterSpacing: "-0.025em",
+              fontWeight: 300,
+              lineHeight: 1,
+            }}
+          >
+            Strategist
+          </h2>
+          <p
+            className="mt-5 text-sm leading-relaxed"
+            style={{
+              color: "rgba(245,242,238,0.4)",
+              fontFamily: "var(--font-body)",
+              maxWidth: "22rem",
+            }}
+          >
+            Data-driven campaigns, audience segmentation, and brand architecture that converts.
+          </p>
+        </div>
+        <div />
       </motion.div>
 
-      {/* Mobile fallback */}
-      <style>{`
-        @media (max-width: 768px) {
-          .split-hero-container { flex-direction: column; }
-        }
-      `}</style>
-    </div>
-  );
-}
+      {/* ── RIGHT PANEL — Creator (light) ── */}
+      <motion.div
+        style={{
+          position: "absolute",
+          inset: 0,
+          clipPath: rightClip,
+          background: "var(--cream)",
+          willChange: "clip-path",
+        }}
+        className="flex flex-col justify-between p-10 md:p-16 pointer-events-none"
+      >
+        {/* Dot grid */}
+        <div
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            backgroundImage: "radial-gradient(circle, var(--cream-dark) 1.5px, transparent 1.5px)",
+            backgroundSize: "28px 28px",
+            opacity: 0.5,
+          }}
+        />
+        <div className="relative z-10 flex justify-end">
+          <span
+            style={{
+              fontFamily: "var(--font-body)",
+              fontSize: "0.75rem",
+              letterSpacing: "0.15em",
+              textTransform: "uppercase",
+              color: "var(--ink-light)",
+            }}
+          >
+            {site.location}
+          </span>
+        </div>
+        <div
+          className="relative z-10"
+          style={{ marginLeft: "auto", maxWidth: "28rem" }}
+        >
+          <p
+            className="mb-4 text-xs tracking-widest uppercase"
+            style={{ color: "var(--gold)", fontFamily: "var(--font-body)" }}
+          >
+            Brand &amp; Visual Story
+          </p>
+          <h2
+            style={{
+              fontFamily: "var(--font-display)",
+              fontSize: "clamp(3rem, 6vw, 6rem)",
+              color: "var(--ink)",
+              letterSpacing: "-0.025em",
+              fontWeight: 300,
+              lineHeight: 1,
+              fontStyle: "italic",
+            }}
+          >
+            Creator.
+          </h2>
+          <p
+            className="mt-5 text-sm leading-relaxed"
+            style={{
+              color: "var(--ink-light)",
+              fontFamily: "var(--font-body)",
+              maxWidth: "22rem",
+            }}
+          >
+            Visual storytelling, content direction, and brand identity that connects on a human level.
+          </p>
+        </div>
+        <div />
+      </motion.div>
 
-/* Mobile hero — stacked */
-function MobileHero() {
-  return (
-    <div className="min-h-screen flex flex-col md:hidden">
-      <div className="flex-1 flex flex-col justify-center px-8 py-16" style={{ background: "var(--side-a)" }}>
-        <div className="mb-2 text-xs tracking-widest uppercase" style={{ color: "var(--gold)", fontFamily: "var(--font-body)" }}>
-          Strategy &amp; Campaigns
-        </div>
-        <h2 className="font-light" style={{ fontFamily: "var(--font-display)", fontSize: "3.5rem", color: "var(--cream)", letterSpacing: "-0.02em" }}>
-          Strategist
-        </h2>
-      </div>
-      <div className="flex-1 flex flex-col justify-center px-8 py-16" style={{ background: "var(--cream)" }}>
-        <div className="mb-2 text-xs tracking-widest uppercase" style={{ color: "var(--gold)", fontFamily: "var(--font-body)" }}>
-          Brand &amp; Visual Story
-        </div>
-        <h2 className="font-light" style={{ fontFamily: "var(--font-display)", fontSize: "3.5rem", color: "var(--ink)", letterSpacing: "-0.02em", fontStyle: "italic" }}>
-          Creator.
-        </h2>
-        <p className="mt-4 text-sm" style={{ color: "var(--ink-light)", fontFamily: "var(--font-body)" }}>Sathvika Manthena — Marketing &amp; Brand Strategist</p>
-        <a href="#about" className="mt-6 inline-block text-xs tracking-widest uppercase" style={{ color: "var(--gold)", fontFamily: "var(--font-body)" }}>
-          See My Work ↓
+      {/* ── VERTICAL DIVIDER + cursor dot ── */}
+      <motion.div
+        style={{
+          position: "absolute",
+          top: 0,
+          bottom: 0,
+          left: dividerLeft,
+          x: "-50%",
+          width: 1,
+          background: "rgba(200,168,130,0.4)",
+          willChange: "left",
+        }}
+      />
+      <motion.div
+        style={{
+          position: "absolute",
+          top: "50%",
+          left: dividerLeft,
+          x: "-50%",
+          y: "-50%",
+          width: 56,
+          height: 56,
+          borderRadius: "50%",
+          background: "var(--gold)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          willChange: "left",
+          zIndex: 10,
+        }}
+        initial={{ scale: 0, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        transition={{ delay: 0.8, type: "spring", stiffness: 200, damping: 18 }}
+      >
+        <svg
+          width="18"
+          height="18"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="white"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <path d="M8 7l-5 5 5 5M16 7l5 5-5 5" />
+        </svg>
+      </motion.div>
+
+      {/* ── Name + scroll CTA ── */}
+      <motion.div
+        className="absolute left-0 right-0 flex flex-col items-center gap-2 z-20"
+        style={{ bottom: "2.5rem", pointerEvents: "none" }}
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 1.1, duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+      >
+        <span
+          style={{
+            fontFamily: "var(--font-display)",
+            fontSize: "clamp(1rem, 2.2vw, 1.6rem)",
+            letterSpacing: "0.22em",
+            fontWeight: 300,
+            background:
+              "linear-gradient(90deg, var(--cream) 0%, var(--gold) 50%, var(--ink) 100%)",
+            WebkitBackgroundClip: "text",
+            backgroundClip: "text",
+            color: "transparent",
+          }}
+        >
+          SATHVIKA MANTHENA
+        </span>
+        <a
+          href="#about"
+          style={{
+            color: "rgba(200,168,130,0.75)",
+            fontFamily: "var(--font-body)",
+            fontSize: "0.65rem",
+            letterSpacing: "0.18em",
+            textTransform: "uppercase",
+            pointerEvents: "all",
+          }}
+        >
+          Scroll to explore ↓
+        </a>
+      </motion.div>
+
+      {/* ── Hire Me — interactive, above panels ── */}
+      <div
+        className="absolute z-30"
+        style={{ top: "2.5rem", right: "2.5rem", pointerEvents: "all" }}
+      >
+        <a
+          href={`mailto:${site.email}`}
+          style={{
+            fontFamily: "var(--font-body)",
+            fontSize: "0.75rem",
+            letterSpacing: "0.12em",
+            textTransform: "uppercase",
+            color: "var(--gold)",
+            textDecoration: "none",
+            background: "rgba(200,168,130,0.12)",
+            border: "1px solid rgba(200,168,130,0.3)",
+            padding: "0.5rem 1.1rem",
+            borderRadius: "99px",
+            transition: "background 0.2s, color 0.2s",
+          }}
+          onMouseEnter={(e) => {
+            (e.currentTarget as HTMLElement).style.background = "var(--gold)";
+            (e.currentTarget as HTMLElement).style.color = "var(--ink)";
+          }}
+          onMouseLeave={(e) => {
+            (e.currentTarget as HTMLElement).style.background = "rgba(200,168,130,0.12)";
+            (e.currentTarget as HTMLElement).style.color = "var(--gold)";
+          }}
+        >
+          Hire Me
         </a>
       </div>
-    </div>
-  );
-}
 
-export default function Hero() {
-  return (
-    <section id="hero">
-      <div className="hidden md:block">
-        <SplitHero />
-      </div>
-      <MobileHero />
+      {/* ── MOBILE override — stacked layout ── */}
+      <style>{`
+        @media (hover: none), (max-width: 767px) {
+          #hero { cursor: default !important; }
+        }
+      `}</style>
     </section>
   );
 }
