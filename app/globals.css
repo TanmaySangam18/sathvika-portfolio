@@ -1,25 +1,27 @@
 @import "tailwindcss";
 
 :root {
-  --cream: #F7F4EF;
-  --cream-dark: #EDE9E1;
-  --ink: #1A1916;
+  /* Adham Dannaway-inspired: sharp contrast, clean, editorial */
+  --side-a: #0F1012;       /* near-black for strategist side */
+  --side-b: #F5F2EE;       /* warm off-white for creator side */
+  --accent-a: #C8A882;     /* warm gold — carries through both sides */
+  --accent-b: #6B6762;     /* muted warm gray */
+  --ink: #0F1012;
+  --ink-mid: #3A3835;
   --ink-light: #6B6762;
-  --gold: #B8936A;
-  --gold-light: #D4B896;
-  --gold-pale: #F0E6D8;
+  --cream: #F5F2EE;
+  --cream-dark: #E8E4DE;
+  --gold: #C8A882;
+  --gold-light: #DCC8B0;
+  --gold-pale: #F0E8DC;
   --white: #FFFFFF;
   --font-display: "Cormorant Garamond", Georgia, serif;
   --font-body: "Inter", system-ui, sans-serif;
 }
 
-* {
-  box-sizing: border-box;
-}
+* { box-sizing: border-box; }
 
-html {
-  scroll-behavior: smooth;
-}
+html { scroll-behavior: smooth; }
 
 body {
   background: var(--cream);
@@ -29,19 +31,15 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar { width: 3px; }
 ::-webkit-scrollbar-track { background: var(--cream); }
-::-webkit-scrollbar-thumb { background: var(--gold-light); border-radius: 2px; }
+::-webkit-scrollbar-thumb { background: var(--gold); border-radius: 2px; }
 
-::selection {
-  background: var(--gold-pale);
-  color: var(--ink);
-}
+::selection { background: var(--gold-pale); color: var(--ink); }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
 }
