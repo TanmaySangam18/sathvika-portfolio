@@ -4,17 +4,12 @@ import { motion, useInView } from "framer-motion";
 import { useRef } from "react";
 import { education, certifications } from "@/lib/content";
 
-function FadeIn({ children, delay = 0, className = "" }: { children: React.ReactNode; delay?: number; className?: string }) {
+function Reveal({ children, delay = 0, style = {} }: { children: React.ReactNode; delay?: number; style?: React.CSSProperties }) {
   const ref = useRef<HTMLDivElement>(null);
   const inView = useInView(ref, { once: true, margin: "-60px" });
   return (
-    <motion.div
-      ref={ref}
-      initial={{ opacity: 0, y: 24 }}
-      animate={inView ? { opacity: 1, y: 0 } : {}}
-      transition={{ duration: 0.65, delay, ease: [0.22, 1, 0.36, 1] }}
-      className={className}
-    >
+    <motion.div ref={ref} initial={{ opacity: 0, y: 28 }} animate={inView ? { opacity: 1, y: 0 } : {}}
+      transition={{ duration: 0.8, delay, ease: [0.22, 1, 0.36, 1] }} style={style}>
       {children}
     </motion.div>
   );
@@ -24,166 +19,98 @@ export default function Education() {
   return (
     <section
       id="education"
-      className="py-24 md:py-36"
-      style={{ background: "var(--cream)" }}
+      style={{ background: "var(--smoke)", position: "relative", overflow: "hidden" }}
     >
-      <div className="max-w-6xl mx-auto px-6 md:px-16">
-        <FadeIn>
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-8 h-px" style={{ background: "var(--gold)" }} />
-            <span
-              className="text-xs tracking-widest uppercase"
-              style={{ color: "var(--gold)", fontFamily: "var(--font-body)" }}
-            >
-              Education & Credentials
+      <div style={{ position: "absolute", bottom: "-3rem", right: "-1rem", fontFamily: "var(--font-display)", fontSize: "clamp(8rem, 22vw, 20rem)", fontWeight: 300, color: "rgba(243,237,227,0.025)", lineHeight: 1, userSelect: "none", pointerEvents: "none", letterSpacing: "-0.05em" }}>
+        04
+      </div>
+
+      <div style={{ padding: "clamp(4rem, 8vw, 7rem) clamp(1.5rem, 5vw, 4rem)", position: "relative", zIndex: 2 }}>
+        <Reveal>
+          <div style={{ display: "flex", alignItems: "center", gap: "1rem", marginBottom: "clamp(3rem, 6vw, 5rem)" }}>
+            <div style={{ width: 32, height: 1, background: "var(--gold)" }} />
+            <span style={{ fontFamily: "var(--font-body)", fontSize: "0.65rem", letterSpacing: "0.25em", textTransform: "uppercase", color: "var(--gold)" }}>
+              04 — Education &amp; Credentials
             </span>
           </div>
-          <h2
-            className="font-light leading-tight mb-16"
-            style={{
-              fontFamily: "var(--font-display)",
-              fontSize: "clamp(2rem, 4vw, 3rem)",
-              color: "var(--ink)",
-              letterSpacing: "-0.01em",
-            }}
-          >
-            Built on a{" "}
-            <span style={{ fontStyle: "italic", color: "var(--gold)" }}>
-              strong foundation
-            </span>
-          </h2>
-        </FadeIn>
+        </Reveal>
 
-        <div className="grid md:grid-cols-2 gap-16">
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "clamp(3rem, 6vw, 5rem)", alignItems: "start" }}>
           {/* Education */}
           <div>
-            <FadeIn>
-              <h3
-                className="text-sm tracking-widest uppercase mb-8"
-                style={{ color: "var(--ink-light)", fontFamily: "var(--font-body)" }}
-              >
+            <Reveal>
+              <h3 style={{ fontFamily: "var(--font-display)", fontSize: "clamp(1.8rem, 3.5vw, 3rem)", fontWeight: 300, color: "var(--cream)", letterSpacing: "-0.02em", marginBottom: "2.5rem", lineHeight: 1.1 }}>
                 Academic
+                <br />
+                <span style={{ fontStyle: "italic", color: "var(--gold)" }}>foundation</span>
               </h3>
-            </FadeIn>
-            <div className="flex flex-col gap-6">
-              {education.map((edu, i) => (
-                <FadeIn key={edu.degree} delay={i * 0.1}>
-                  <div
-                    className="p-7 rounded-2xl transition-all duration-300"
-                    style={{ background: "var(--white)" }}
-                    onMouseEnter={(e) => {
-                      (e.currentTarget as HTMLElement).style.transform = "translateY(-2px)";
-                      (e.currentTarget as HTMLElement).style.boxShadow = "0 8px 32px rgba(184,147,106,0.12)";
-                    }}
-                    onMouseLeave={(e) => {
-                      (e.currentTarget as HTMLElement).style.transform = "translateY(0)";
-                      (e.currentTarget as HTMLElement).style.boxShadow = "none";
-                    }}
-                  >
-                    <div className="flex items-start justify-between gap-4 mb-3">
-                      <h4
-                        className="font-medium text-lg leading-tight"
-                        style={{ fontFamily: "var(--font-display)", color: "var(--ink)" }}
-                      >
-                        {edu.degree}
-                      </h4>
-                      <span
-                        className="text-xs px-2.5 py-1 rounded-full shrink-0"
-                        style={{
-                          background: edu.status === "In Progress" ? "var(--gold-pale)" : "var(--cream)",
-                          color: edu.status === "In Progress" ? "var(--gold)" : "var(--ink-light)",
-                          fontFamily: "var(--font-body)",
-                        }}
-                      >
-                        {edu.status}
-                      </span>
-                    </div>
-                    <p
-                      className="text-sm font-medium mb-1"
-                      style={{ color: "var(--gold)", fontFamily: "var(--font-body)" }}
-                    >
-                      {edu.specialisation}
-                    </p>
-                    <p
-                      className="text-sm mb-1"
-                      style={{ color: "var(--ink-light)", fontFamily: "var(--font-body)" }}
-                    >
-                      {edu.institution} · {edu.period}
-                    </p>
-                    {edu.gpa && (
-                      <p
-                        className="text-sm mb-3"
-                        style={{ color: "var(--ink-light)", fontFamily: "var(--font-body)" }}
-                      >
-                        {edu.gpa}
-                      </p>
-                    )}
-                    <p
-                      className="text-sm leading-relaxed mt-3"
-                      style={{ color: "var(--ink-light)", fontFamily: "var(--font-body)" }}
-                    >
-                      {edu.details}
-                    </p>
+            </Reveal>
+
+            {education.map((edu, i) => (
+              <Reveal key={edu.degree} delay={0.1 + i * 0.1}>
+                <div style={{ borderLeft: "1px solid var(--ghost)", paddingLeft: "1.5rem", marginBottom: "2.5rem" }}
+                  onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.borderLeftColor = "var(--gold)")}
+                  onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.borderLeftColor = "var(--ghost)")}
+                >
+                  <div style={{ fontFamily: "var(--font-body)", fontSize: "0.6rem", letterSpacing: "0.2em", textTransform: "uppercase", color: "var(--gold)", marginBottom: "0.5rem" }}>
+                    {edu.period} · {edu.status}
                   </div>
-                </FadeIn>
-              ))}
-            </div>
+                  <h4 style={{ fontFamily: "var(--font-display)", fontSize: "1.4rem", fontWeight: 400, color: "var(--cream)", marginBottom: "0.25rem" }}>
+                    {edu.degree}
+                  </h4>
+                  <div style={{ fontFamily: "var(--font-body)", fontSize: "0.85rem", color: "var(--gold)", marginBottom: "0.5rem" }}>
+                    {edu.specialisation}
+                  </div>
+                  <div style={{ fontFamily: "var(--font-body)", fontSize: "0.8rem", color: "var(--ash)", marginBottom: "0.75rem" }}>
+                    {edu.institution}{edu.gpa ? ` · ${edu.gpa}` : ""}
+                  </div>
+                  <p style={{ fontFamily: "var(--font-body)", fontSize: "0.8rem", lineHeight: 1.65, color: "rgba(243,237,227,0.35)" }}>
+                    {edu.details}
+                  </p>
+                </div>
+              </Reveal>
+            ))}
           </div>
 
           {/* Certifications */}
           <div>
-            <FadeIn>
-              <h3
-                className="text-sm tracking-widest uppercase mb-8"
-                style={{ color: "var(--ink-light)", fontFamily: "var(--font-body)" }}
-              >
-                Certifications
+            <Reveal delay={0.1}>
+              <h3 style={{ fontFamily: "var(--font-display)", fontSize: "clamp(1.8rem, 3.5vw, 3rem)", fontWeight: 300, color: "var(--cream)", letterSpacing: "-0.02em", marginBottom: "2.5rem", lineHeight: 1.1 }}>
+                Certifications &amp;
+                <br />
+                <span style={{ fontStyle: "italic", color: "var(--gold)" }}>programmes</span>
               </h3>
-            </FadeIn>
-            <div className="flex flex-col gap-4">
+            </Reveal>
+
+            <div style={{ display: "flex", flexDirection: "column", gap: "0" }}>
               {certifications.map((cert, i) => (
-                <FadeIn key={cert.title} delay={i * 0.07}>
+                <Reveal key={cert.title} delay={0.15 + i * 0.07}>
                   <div
-                    className="p-5 rounded-xl flex items-start gap-4 transition-all duration-300"
-                    style={{ background: "var(--white)" }}
-                    onMouseEnter={(e) => {
-                      (e.currentTarget as HTMLElement).style.transform = "translateX(4px)";
+                    style={{
+                      borderBottom: "1px solid var(--ghost)",
+                      padding: "1.25rem 0",
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "flex-start",
+                      gap: "1rem",
+                      transition: "padding-left 0.35s var(--ease-brand)",
                     }}
-                    onMouseLeave={(e) => {
-                      (e.currentTarget as HTMLElement).style.transform = "translateX(0)";
-                    }}
+                    onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.paddingLeft = "1rem")}
+                    onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.paddingLeft = "0")}
                   >
-                    <div
-                      className="w-8 h-8 rounded-full flex items-center justify-center shrink-0 mt-0.5"
-                      style={{ background: "var(--gold-pale)" }}
-                    >
-                      <div
-                        className="w-2 h-2 rounded-full"
-                        style={{ background: "var(--gold)" }}
-                      />
-                    </div>
-                    <div className="flex-1">
-                      <h4
-                        className="font-medium text-base mb-0.5"
-                        style={{ fontFamily: "var(--font-display)", color: "var(--ink)" }}
-                      >
+                    <div>
+                      <div style={{ fontFamily: "var(--font-display)", fontSize: "1.05rem", color: "var(--cream)", marginBottom: "0.2rem" }}>
                         {cert.title}
-                      </h4>
-                      <p
-                        className="text-xs mb-1"
-                        style={{ color: "var(--gold)", fontFamily: "var(--font-body)" }}
-                      >
-                        {cert.issuer} · {cert.date}
-                      </p>
-                      <p
-                        className="text-xs leading-relaxed"
-                        style={{ color: "var(--ink-light)", fontFamily: "var(--font-body)" }}
-                      >
-                        {cert.note}
-                      </p>
+                      </div>
+                      <div style={{ fontFamily: "var(--font-body)", fontSize: "0.75rem", color: "var(--ash)" }}>
+                        {cert.issuer}
+                      </div>
                     </div>
+                    <span style={{ fontFamily: "var(--font-body)", fontSize: "0.65rem", color: "var(--gold)", letterSpacing: "0.1em", whiteSpace: "nowrap", flexShrink: 0 }}>
+                      {cert.date}
+                    </span>
                   </div>
-                </FadeIn>
+                </Reveal>
               ))}
             </div>
           </div>

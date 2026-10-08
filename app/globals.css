@@ -1,41 +1,75 @@
 @import "tailwindcss";
 
 :root {
-  /* Adham Dannaway-inspired: sharp contrast, clean, editorial */
-  --side-a: #0F1012;       /* near-black for strategist side */
-  --side-b: #F5F2EE;       /* warm off-white for creator side */
-  --accent-a: #C8A882;     /* warm gold — carries through both sides */
-  --accent-b: #6B6762;     /* muted warm gray */
-  --ink: #0F1012;
-  --ink-mid: #3A3835;
-  --ink-light: #6B6762;
-  --cream: #F5F2EE;
-  --cream-dark: #E8E4DE;
-  --gold: #C8A882;
-  --gold-light: #DCC8B0;
-  --gold-pale: #F0E8DC;
-  --white: #FFFFFF;
+  --void:        #070707;
+  --deep:        #100E0C;
+  --smoke:       #1A1612;
+  --cream:       #F3EDE3;
+  --paper:       #F9F6EF;
+  --bone:        #E8E1D5;
+  --gold:        #C49358;
+  --gold-hi:     #D9AB74;
+  --gold-dim:    #7A5C36;
+  --wine:        #7B2B3E;
+  --wine-hi:     #9E374E;
+  --ash:         #7A7470;
+  --ghost:       rgba(243,237,227,0.07);
+
+  --ease-brand:  cubic-bezier(0.22, 1, 0.36, 1);
+
   --font-display: "Cormorant Garamond", Georgia, serif;
-  --font-body: "Inter", system-ui, sans-serif;
+  --font-body:    "Inter", system-ui, sans-serif;
 }
 
-* { box-sizing: border-box; }
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-html { scroll-behavior: smooth; }
+html {
+  overflow-x: hidden;
+}
 
 body {
-  background: var(--cream);
-  color: var(--ink);
+  background: var(--void);
+  color: var(--cream);
   font-family: var(--font-body);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+  cursor: none;
 }
 
-::-webkit-scrollbar { width: 3px; }
-::-webkit-scrollbar-track { background: var(--cream); }
-::-webkit-scrollbar-thumb { background: var(--gold); border-radius: 2px; }
+/* hide default cursor globally — custom cursor handles it */
+a, button { cursor: none; }
 
-::selection { background: var(--gold-pale); color: var(--ink); }
+::selection {
+  background: var(--wine);
+  color: var(--cream);
+}
+
+::-webkit-scrollbar { width: 2px; }
+::-webkit-scrollbar-track { background: var(--void); }
+::-webkit-scrollbar-thumb { background: var(--gold-dim); }
+
+/* Marquee keyframe */
+@keyframes marquee-left {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+@keyframes marquee-right {
+  from { transform: translateX(-50%); }
+  to   { transform: translateX(0); }
+}
+
+/* Blink */
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0; }
+}
+
+/* Spin slow */
+@keyframes spin-slow {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {

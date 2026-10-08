@@ -4,17 +4,12 @@ import { motion, useInView } from "framer-motion";
 import { useRef } from "react";
 import { experience } from "@/lib/content";
 
-function Reveal({ children, delay = 0, className = "" }: { children: React.ReactNode; delay?: number; className?: string }) {
+function Reveal({ children, delay = 0, style = {} }: { children: React.ReactNode; delay?: number; style?: React.CSSProperties }) {
   const ref = useRef<HTMLDivElement>(null);
   const inView = useInView(ref, { once: true, margin: "-60px" });
   return (
-    <motion.div
-      ref={ref}
-      initial={{ opacity: 0, y: 24 }}
-      animate={inView ? { opacity: 1, y: 0 } : {}}
-      transition={{ duration: 0.7, delay, ease: [0.22, 1, 0.36, 1] }}
-      className={className}
-    >
+    <motion.div ref={ref} initial={{ opacity: 0, y: 28 }} animate={inView ? { opacity: 1, y: 0 } : {}}
+      transition={{ duration: 0.8, delay, ease: [0.22, 1, 0.36, 1] }} style={style}>
       {children}
     </motion.div>
   );
@@ -24,110 +19,87 @@ export default function Experience() {
   return (
     <section
       id="experience"
-      style={{ background: "var(--cream)" }}
+      data-light="true"
+      style={{ background: "var(--paper)", color: "var(--void)", position: "relative", overflow: "hidden" }}
     >
-      <div className="max-w-6xl mx-auto px-6 md:px-14 py-20 md:py-32">
-        <div className="grid md:grid-cols-12 gap-8 md:gap-16">
-          {/* Sticky label */}
-          <div className="md:col-span-3">
-            <Reveal>
-              <div className="sticky top-28">
-                <div
-                  className="text-xs tracking-widest uppercase mb-4"
-                  style={{ color: "var(--gold)", fontFamily: "var(--font-body)" }}
-                >
-                  Experience
-                </div>
-                <h2
-                  className="font-light leading-tight"
-                  style={{
-                    fontFamily: "var(--font-display)",
-                    fontSize: "2rem",
-                    color: "var(--ink)",
-                  }}
-                >
-                  Where I've
-                  <br />
-                  <span style={{ fontStyle: "italic" }}>made an impact</span>
-                </h2>
-              </div>
-            </Reveal>
-          </div>
+      {/* BG number */}
+      <div style={{ position: "absolute", top: "-3rem", right: "-2rem", fontFamily: "var(--font-display)", fontSize: "clamp(8rem, 22vw, 20rem)", fontWeight: 300, color: "rgba(10,9,9,0.04)", lineHeight: 1, userSelect: "none", pointerEvents: "none", letterSpacing: "-0.05em" }}>
+        03
+      </div>
 
-          {/* Cards */}
-          <div className="md:col-span-9 flex flex-col gap-6">
-            {experience.map((role, i) => (
-              <Reveal key={role.company} delay={i * 0.1}>
-                <div
-                  className="group"
-                  style={{
-                    borderTop: "1px solid var(--cream-dark)",
-                    paddingTop: "1.75rem",
-                    paddingBottom: "1.75rem",
-                    transition: "padding-left 0.3s ease",
-                  }}
-                  onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.paddingLeft = "0.75rem")}
-                  onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.paddingLeft = "0")}
-                >
-                  {/* Header row */}
-                  <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-3 mb-5">
-                    <div>
-                      <h3
-                        className="font-light text-2xl leading-snug"
-                        style={{ fontFamily: "var(--font-display)", color: "var(--ink)" }}
-                      >
-                        {role.role}
-                      </h3>
-                      <div className="flex items-center gap-2 mt-1">
-                        <span
-                          className="text-sm"
-                          style={{ color: "var(--gold)", fontFamily: "var(--font-body)" }}
-                        >
-                          {role.company}
-                        </span>
-                        <span style={{ color: "var(--cream-dark)" }}>·</span>
-                        <span
-                          className="text-sm"
-                          style={{ color: "var(--ink-light)", fontFamily: "var(--font-body)" }}
-                        >
-                          {role.location}
-                        </span>
-                      </div>
-                    </div>
-                    <span
-                      className="text-xs px-3 py-1.5 rounded-full shrink-0 self-start"
+      <div style={{ padding: "clamp(4rem, 8vw, 7rem) clamp(1.5rem, 5vw, 4rem)", position: "relative", zIndex: 2 }}>
+        <Reveal>
+          <div style={{ display: "flex", alignItems: "center", gap: "1rem", marginBottom: "clamp(3rem, 6vw, 5rem)" }}>
+            <div style={{ width: 32, height: 1, background: "var(--gold)" }} />
+            <span style={{ fontFamily: "var(--font-body)", fontSize: "0.65rem", letterSpacing: "0.25em", textTransform: "uppercase", color: "var(--gold)" }}>
+              03 — Experience
+            </span>
+          </div>
+        </Reveal>
+
+        <div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
+          {experience.map((role, i) => (
+            <Reveal key={role.company} delay={i * 0.12} style={{ borderBottom: "1px solid var(--bone)" }}>
+              <div
+                style={{ padding: "clamp(2rem, 4vw, 3.5rem) 0", display: "grid", gridTemplateColumns: "1fr", gap: "1.5rem" }}
+                onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.paddingLeft = "1.5rem")}
+                onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.paddingLeft = "0")}
+              >
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: "1rem", transition: "padding-left 0.4s var(--ease-brand)" }}>
+                  <div>
+                    {/* Company name — BIG */}
+                    <h3
                       style={{
-                        background: "var(--gold-pale)",
-                        color: "var(--gold)",
-                        fontFamily: "var(--font-body)",
-                        letterSpacing: "0.02em",
+                        fontFamily: "var(--font-display)",
+                        fontSize: "clamp(2rem, 5vw, 4rem)",
+                        fontWeight: 300,
+                        color: "var(--void)",
+                        lineHeight: 1,
+                        letterSpacing: "-0.025em",
+                        marginBottom: "0.4rem",
                       }}
                     >
-                      {role.period}
-                    </span>
+                      {role.company}
+                    </h3>
+                    <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", flexWrap: "wrap" }}>
+                      <span style={{ fontFamily: "var(--font-body)", fontSize: "0.8rem", color: "var(--gold)", fontWeight: 500 }}>
+                        {role.role}
+                      </span>
+                      <span style={{ color: "var(--bone)" }}>·</span>
+                      <span style={{ fontFamily: "var(--font-body)", fontSize: "0.8rem", color: "var(--ash)" }}>
+                        {role.location}
+                      </span>
+                    </div>
                   </div>
-
-                  {/* Bullet points */}
-                  <ul className="flex flex-col gap-2">
-                    {role.highlights.map((point, j) => (
-                      <li key={j} className="flex items-start gap-3">
-                        <div
-                          className="w-1.5 h-1.5 rounded-full mt-2 shrink-0"
-                          style={{ background: "var(--gold)" }}
-                        />
-                        <span
-                          className="text-sm leading-relaxed"
-                          style={{ color: "var(--ink-light)", fontFamily: "var(--font-body)" }}
-                        >
-                          {point}
-                        </span>
-                      </li>
-                    ))}
-                  </ul>
+                  <span
+                    style={{
+                      fontFamily: "var(--font-body)",
+                      fontSize: "0.65rem",
+                      letterSpacing: "0.12em",
+                      textTransform: "uppercase",
+                      padding: "0.45rem 1.1rem",
+                      background: "var(--bone)",
+                      color: "var(--void)",
+                      borderRadius: 2,
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    {role.period}
+                  </span>
                 </div>
-              </Reveal>
-            ))}
-          </div>
+
+                {/* Bullets */}
+                <ul style={{ display: "flex", flexDirection: "column", gap: "0.6rem", paddingLeft: 0 }}>
+                  {role.highlights.map((pt, j) => (
+                    <li key={j} style={{ display: "flex", alignItems: "flex-start", gap: "0.75rem" }}>
+                      <div style={{ width: 4, height: 4, borderRadius: "50%", background: "var(--gold)", marginTop: 9, flexShrink: 0 }} />
+                      <span style={{ fontFamily: "var(--font-body)", fontSize: "0.9rem", lineHeight: 1.65, color: "var(--ash)" }}>{pt}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </Reveal>
+          ))}
         </div>
       </div>
     </section>
